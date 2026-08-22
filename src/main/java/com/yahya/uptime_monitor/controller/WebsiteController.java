@@ -30,4 +30,8 @@ public class WebsiteController {
     public void deleteWebsite(@PathVariable Long id) {
         websiteService.deleteWebsite(id);
     }
+    @PostMapping("/{id}/check")
+public Website checkWebsite(@PathVariable Long id) {
+    return websiteService.checkWebsite(id);
+}
 }

@@ -14,6 +14,9 @@ public class Website {
 
     private String url;
 
+    private String status;
+    
+
     public Website() {
     }
 
@@ -21,7 +24,12 @@ public class Website {
         this.name = name;
         this.url = url;
     }
-
+public String getStatus() {
+    return status;
+}
+public void setStatus(String status) {
+    this.status = status;
+}
     public Long getId() {
         return id;
     }
