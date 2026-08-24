@@ -1,27 +1,38 @@
 services:
   db:
-    image: postgres:16
-    container_name: uptime-postgres
+    image: postgres:16-alpine
     environment:
-      POSTGRES_DB: uptime_monitor
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: wUVk.z8xKNwXdPe12345
-    ports:
-      - "5432:5432"
+      POSTGRES_DB: "${POSTGRES_DB:-uptime_monitor}"
+      POSTGRES_USER: "${POSTGRES_USER:-postgres}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in your environment or .env file}"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
     volumes:
       - uptime-postgres-data:/var/lib/postgresql/data
 
   app:
     build: .
-    container_name: uptime-app
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     environment:
-      DB_URL: jdbc:postgresql://db:5432/uptime_monitor
-      DB_USERNAME: postgres
-      DB_PASSWORD: wUVk.z8xKNwXdPe12345
+      DB_URL: "jdbc:postgresql://db:5432/${POSTGRES_DB:-uptime_monitor}"
+      DB_USERNAME: "${POSTGRES_USER:-postgres}"
+      DB_PASSWORD: "${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in your environment or .env file}"
+      MONITORING_WORKER_THREADS: "${MONITORING_WORKER_THREADS:-4}"
+      MONITORING_QUEUE_CAPACITY: "${MONITORING_QUEUE_CAPACITY:-100}"
+      MONITORING_SCHEDULER_DELAY_MS: "${MONITORING_SCHEDULER_DELAY_MS:-10000}"
+      MONITORING_CONNECT_TIMEOUT_MS: "${MONITORING_CONNECT_TIMEOUT_MS:-5000}"
+      MONITORING_READ_TIMEOUT_MS: "${MONITORING_READ_TIMEOUT_MS:-5000}"
+      MONITORING_RETENTION_DAYS: "${MONITORING_RETENTION_DAYS:-30}"
+      MONITORING_RETENTION_CLEANUP_DELAY_MS: "${MONITORING_RETENTION_CLEANUP_DELAY_MS:-86400000}"
+      MONITORING_ALLOW_PRIVATE_TARGETS: "${MONITORING_ALLOW_PRIVATE_TARGETS:-false}"
     ports:
-      - "8080:8080"
+      - "${APP_PORT:-8080}:8080"
 
 volumes:
   uptime-postgres-data:
