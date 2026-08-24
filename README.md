@@ -30,3 +30,35 @@ https://uptime-monitor-2lby.onrender.com/actuator/health
 - GitHub Actions
 - Render
 - Vercel
+
+## Features
+
+- Website uptime monitoring
+- Automatic scheduled checks
+- Manual health checks
+- Monitoring history
+- Uptime statistics
+- Incident tracking
+- Alerts
+- Public status page
+- Dashboard metrics
+- Configurable monitoring intervals
+- Pagination and filtering
+- Validation and global error handling
+
+## Architecture
+
+Frontend (React + Vite)
+        |
+        v
+Backend (Spring Boot REST API)
+        |
+        v
+PostgreSQL
+
+Deployment:
+- Frontend: Vercel
+- Backend: Render
+- Database: Render PostgreSQL
+- CI: GitHub Actions
+
