@@ -1,0 +1,15 @@
+.git
+.github
+.idea
+.vscode
+.agents
+target
+frontend/node_modules
+frontend/dist
+*.iml
+*.log
+.env
+compose*.yml
+Dockerfile
+HELP.md
+skills-lock.json
