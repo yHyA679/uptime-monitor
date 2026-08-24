@@ -1,0 +1,122 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  font-family: "SF Pro Display", "Segoe UI Variable", "Helvetica Neue", Arial, sans-serif;
+  color: #202222;
+  background: #f7f7f5;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  --canvas: #f7f7f5;
+  --surface: #ffffff;
+  --surface-muted: #f0f1ef;
+  --border: #dedfdb;
+  --border-strong: #c9cbc6;
+  --text: #202222;
+  --text-muted: #6e716d;
+  --accent: #356e8d;
+  --accent-soft: #e4eff4;
+  --success: #2f6b45;
+  --success-soft: #e7f2e9;
+  --danger: #9b3a36;
+  --danger-soft: #f7e9e8;
+  --warning: #8a6318;
+  --warning-soft: #f7efdc;
+}
+
+.dark {
+  color: #eeeeeb;
+  background: #101111;
+  --canvas: #101111;
+  --surface: #171818;
+  --surface-muted: #1e2020;
+  --border: #2d2f2e;
+  --border-strong: #414441;
+  --text: #eeeeeb;
+  --text-muted: #9b9f9a;
+  --accent: #89afc3;
+  --accent-soft: #1b303a;
+  --success: #8bc79c;
+  --success-soft: #1b3022;
+  --danger: #e1a09b;
+  --danger-soft: #38211f;
+  --warning: #dfbd72;
+  --warning-soft: #332b1b;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+  background: var(--canvas);
+}
+
+body {
+  min-width: 320px;
+  min-height: 100dvh;
+  margin: 0;
+  background: var(--canvas);
+  color: var(--text);
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: var(--accent-soft);
+}
+
+.font-mono-numbers {
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+.surface {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+}
+
+.interactive {
+  transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease,
+    transform 120ms ease;
+}
+
+.interactive:active {
+  transform: translateY(1px);
+}
+
+.scrollbar-thin {
+  scrollbar-color: var(--border-strong) transparent;
+  scrollbar-width: thin;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
