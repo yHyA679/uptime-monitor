@@ -1,0 +1,27 @@
+services:
+  db:
+    image: postgres:16
+    container_name: uptime-postgres
+    environment:
+      POSTGRES_DB: uptime_monitor
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: wUVk.z8xKNwXdPe12345
+    ports:
+      - "5432:5432"
+    volumes:
+      - uptime-postgres-data:/var/lib/postgresql/data
+
+  app:
+    build: .
+    container_name: uptime-app
+    depends_on:
+      - db
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/uptime_monitor
+      DB_USERNAME: postgres
+      DB_PASSWORD: wUVk.z8xKNwXdPe12345
+    ports:
+      - "8080:8080"
+
+volumes:
+  uptime-postgres-data:
