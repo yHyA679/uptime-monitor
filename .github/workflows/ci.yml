@@ -15,21 +15,18 @@ jobs:
 
     services:
       postgres:
-        image: postgres:16
+        image: postgres:16-alpine
         env:
-          POSTGRES_DB: uptime_monitor
+          POSTGRES_DB: uptime_monitor_ci
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
         ports:
           - 5432:5432
         options: >-
-          --health-cmd="pg_isready -U postgres"
-          --health-interval=10s
+          --health-cmd="pg_isready -U postgres -d uptime_monitor_ci"
+          --health-interval=5s
           --health-timeout=5s
-          --health-retries=5
-
-    env:
-      DB_PASSWORD: postgres
+          --health-retries=10
 
     steps:
       - name: Checkout code
@@ -41,12 +38,60 @@ jobs:
           distribution: temurin
           java-version: '17'
           cache: maven
+          cache-dependency-path: pom.xml
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
 
       - name: Make Maven wrapper executable
         run: chmod +x mvnw
 
-      - name: Run tests
-        run: ./mvnw test
+      - name: Run unit tests
+        run: >-
+          ./mvnw --batch-mode --no-transfer-progress test
+          -Dtest='*Test,*Tests,!*IntegrationTest'
+          -Dsurefire.reportNameSuffix=unit
 
-      - name: Build project
-        run: ./mvnw package -DskipTests
+      - name: Run integration tests
+        env:
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/uptime_monitor_ci
+          SPRING_DATASOURCE_USERNAME: postgres
+          SPRING_DATASOURCE_PASSWORD: postgres
+          SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
+          SPRING_TEST_DATABASE_REPLACE: NONE
+          SPRING_FLYWAY_ENABLED: 'true'
+          SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+        run: >-
+          ./mvnw --batch-mode --no-transfer-progress test
+          -Dtest='*IntegrationTest'
+          -Dsurefire.reportNameSuffix=integration
+
+      - name: Build Spring Boot jar
+        run: ./mvnw --batch-mode --no-transfer-progress package -DskipTests
+
+      - name: Build frontend
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run build
+
+      - name: Validate Docker Compose configuration
+        env:
+          POSTGRES_PASSWORD: ci-compose-validation-only
+        run: docker compose config --quiet
+
+      - name: Build Docker image
+        run: docker build --tag uptime-monitor:ci .
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports
+          path: target/surefire-reports/
+          if-no-files-found: warn
+          retention-days: 14
